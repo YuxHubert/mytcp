@@ -43,9 +43,19 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
     @Override
     //不可靠发送：将打包好的TCP数据报通过不可靠传输信道发送；仅需修改错误标志
+    /**
+     0: 信道无差错
+     1: 只有出错
+     2: 只有丢包
+     3: 只有延迟
+     4: 出错 + 丢包
+     5: 出错 + 延迟
+     6: 丢包 + 延迟
+     7: 出错 + 丢包 + 延迟
+     */
     public void udt_send(TCP_PACKET stcpPack) {
         //设置错误控制标志
-        tcpH.setTh_eflag((byte)0);
+        tcpH.setTh_eflag((byte)1);
         //System.out.println("to send: "+stcpPack.getTcpH().getTh_seq());
         //发送数据报
         client.send(stcpPack);
@@ -63,7 +73,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
                 System.out.println("Clear: "+tcpPack.getTcpH().getTh_seq());
                 flag = 1;
                 //break;
-            }else{
+            }else{ // currentAck=-1，NACK，需要重新发送
                 System.out.println("Retransmit: "+tcpPack.getTcpH().getTh_seq());
                 udt_send(tcpPack);
                 flag = 0;

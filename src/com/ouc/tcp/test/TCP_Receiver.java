@@ -15,6 +15,7 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 
     private TCP_PACKET ackPack;	//回复的ACK报文段
     int sequence=1;//用于记录当前待接收的包序号，注意包序号不完全是
+    int preSequence = -1; //记录上一个包的序号
 
     /*构造函数*/
     public TCP_Receiver() {
@@ -27,23 +28,30 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
     public void rdt_recv(TCP_PACKET recvPack) {
         //检查校验码，生成ACK
         if(CheckSum.computeChkSum(recvPack) == recvPack.getTcpH().getTh_sum()) {
-            //生成ACK报文段（设置确认号）
-            tcpH.setTh_ack(recvPack.getTcpH().getTh_seq());
-            ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
-            tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
+            //检验通过，生成ACK报文段（设置确认号）
+            tcpH.setTh_ack(recvPack.getTcpH().getTh_seq());//设置ack为收到分组的seq
+            ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());//新建TCP分组
+            tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));//设置校验和
             //回复ACK报文段
             reply(ackPack);
+            int nowSequence = (recvPack.getTcpH().getTh_seq() - 1) / 100;  // 当前这个包的seq
+            if (nowSequence != this.preSequence) {  // 收到的包的seq是新值
+                this.preSequence = nowSequence;  // 更新上一次接受的seq为本次接受到的包的seq
 
-            //将接收到的正确有序的数据插入data队列，准备交付
-            dataQueue.add(recvPack.getTcpS().getData());
-            sequence++;
-        }else{
-            System.out.println("Recieve Computed: "+CheckSum.computeChkSum(recvPack));
-            System.out.println("Recieved Packet"+recvPack.getTcpH().getTh_sum());
+                //将接收到的正确有序的数据插入 data 队列，准备交付
+                this.dataQueue.add(recvPack.getTcpS().getData());
+                sequence++;
+            }
+        }
+        else{
+            //检验未通过
+            System.out.println("Recieve Computed: "+CheckSum.computeChkSum(recvPack));//打印校验和的计算结果
+            System.out.println("Recieved Packet"+recvPack.getTcpH().getTh_sum());//打印收到的校验和
             System.out.println("Problem: Packet Number: "+recvPack.getTcpH().getTh_seq()+" + InnerSeq:  "+sequence);
-            tcpH.setTh_ack(-1);
-            ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
-            tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
+            //  tcpH.setTh_ack(-1); //RDT2.1以及之前，将ack置位-1，表明是NACK
+            tcpH.setTh_ack(preSequence*100+1); //RDT2.2,将ack设置为上一个接收到的包的seq
+            ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());//新建TCP分组
+            tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));//计算校验和
             //回复ACK报文段
             reply(ackPack);
         }
@@ -88,8 +96,7 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
     //回复ACK报文段
     public void reply(TCP_PACKET replyPack) {
         //设置错误控制标志
-        tcpH.setTh_eflag((byte)0);	//eFlag=0，信道无错误
-
+        tcpH.setTh_eflag((byte)4);
         //发送数据报
         client.send(replyPack);
     }

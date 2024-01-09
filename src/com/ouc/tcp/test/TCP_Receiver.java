@@ -1,5 +1,4 @@
-/***************************2.1: ACK/NACK*****************/
-/***** Feng Hong; 2015-12-09******************************/
+
 package com.ouc.tcp.test;
 
 import java.io.BufferedWriter;
@@ -9,7 +8,6 @@ import java.io.IOException;
 
 import com.ouc.tcp.client.TCP_Receiver_ADT;
 import com.ouc.tcp.message.*;
-import com.ouc.tcp.tool.TCP_TOOL;
 
 public class TCP_Receiver extends TCP_Receiver_ADT {
 
@@ -33,7 +31,6 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
             tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
             //回复ACK报文段
             reply(ackPack);
-
             //将接收到的正确有序的数据插入data队列，准备交付
             dataQueue.add(recvPack.getTcpS().getData());
             sequence++;
@@ -41,16 +38,13 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
             System.out.println("Recieve Computed: "+CheckSum.computeChkSum(recvPack));
             System.out.println("Recieved Packet"+recvPack.getTcpH().getTh_sum());
             System.out.println("Problem: Packet Number: "+recvPack.getTcpH().getTh_seq()+" + InnerSeq:  "+sequence);
-            tcpH.setTh_ack(-1);
+            tcpH.setTh_ack(-1); // 不对就是 -1
             ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
             tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
             //回复ACK报文段
             reply(ackPack);
         }
-
         System.out.println();
-
-
         //交付数据（每20组数据交付一次）
         if(dataQueue.size() == 20)
             deliver_data();
@@ -89,7 +83,6 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
     public void reply(TCP_PACKET replyPack) {
         //设置错误控制标志
         tcpH.setTh_eflag((byte)0);	//eFlag=0，信道无错误
-
         //发送数据报
         client.send(replyPack);
     }

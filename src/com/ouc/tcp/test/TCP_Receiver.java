@@ -1,15 +1,12 @@
-/***************************2.1: ACK/NACK*****************/
-/***** Feng Hong; 2015-12-09******************************/
+//rdt 1.0 测试版本
 package com.ouc.tcp.test;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import com.ouc.tcp.client.TCP_Receiver_ADT;
 import com.ouc.tcp.message.*;
-import com.ouc.tcp.tool.TCP_TOOL;
 
 public class TCP_Receiver extends TCP_Receiver_ADT {
 

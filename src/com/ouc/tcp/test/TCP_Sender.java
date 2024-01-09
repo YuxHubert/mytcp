@@ -1,13 +1,10 @@
-/***************************2.1: ACK/NACK
- **************************** Feng Hong; 2015-12-09*/
+/*****rdt 1.0 测试版本*/
 
 package com.ouc.tcp.test;
 
 import com.ouc.tcp.client.TCP_Sender_ADT;
-import com.ouc.tcp.client.UDT_RetransTask;
-import com.ouc.tcp.client.UDT_Timer;
+
 import com.ouc.tcp.message.*;
-import com.ouc.tcp.tool.TCP_TOOL;
 
 public class TCP_Sender extends TCP_Sender_ADT {
 
@@ -77,10 +74,8 @@ public class TCP_Sender extends TCP_Sender_ADT {
         System.out.println("Receive ACK Number： "+ recvPack.getTcpH().getTh_ack());
         ackQueue.add(recvPack.getTcpH().getTh_ack());
         System.out.println();
-
         //处理ACK报文
         waitACK();
-
     }
 
 }

@@ -1,13 +1,7 @@
-/***************************2.1: ACK/NACK
-**************************** Feng Hong; 2015-12-09*/
-
 package com.ouc.tcp.test;
 
 import com.ouc.tcp.client.TCP_Sender_ADT;
-import com.ouc.tcp.client.UDT_RetransTask;
-import com.ouc.tcp.client.UDT_Timer;
 import com.ouc.tcp.message.*;
-import com.ouc.tcp.tool.TCP_TOOL;
 
 public class TCP_Sender extends TCP_Sender_ADT {
 	
@@ -25,23 +19,15 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	public void rdt_send(int dataIndex, int[] appData) {
 
 		//生成TCP数据报（设置序号和数据字段/校验和),注意打包的顺序
-
-//		tcpH.setTh_seq(dataIndex * appData.length + 1);//包序号设置为字节流号：
 		tcpH.setTh_seq(dataIndex * appData.length + 1);
-
-
 		tcpS.setData(appData);
 		tcpPack = new TCP_PACKET(tcpH, tcpS, destinAddr);		
 		//更新带有checksum的TCP 报文头		
 		tcpH.setTh_sum(CheckSum.computeChkSum(tcpPack));
 		tcpPack.setTcpH(tcpH);
-		
 		//发送TCP数据报
 		udt_send(tcpPack);
 		flag = 0;
-
-		//等待ACK报文
-		//waitACK();
 		while (flag==0);
 	}
 	
@@ -60,7 +46,6 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	public void udt_send(TCP_PACKET stcpPack) {
 		//设置错误控制标志
 		tcpH.setTh_eflag((byte)1);
-		//System.out.println("to send: "+stcpPack.getTcpH().getTh_seq());				
 		//发送数据报
 		client.send(stcpPack);
 	}
@@ -100,10 +85,8 @@ public class TCP_Sender extends TCP_Sender_ADT {
 			this.ackQueue.add(-1);
 			System.out.println();
 		}
-
 		// 处理 ACK 报文
 		waitACK();
-
 	}
 	
 }

@@ -5,12 +5,16 @@ import com.ouc.tcp.client.UDT_RetransTask;
 import com.ouc.tcp.client.UDT_Timer;
 import com.ouc.tcp.message.TCP_PACKET;
 
-import java.util.Timer;
 
 public class SenderSlidingWindow {
-
+    public Client client;  //客户端
+    public int size = 16; //窗口大小
+    public TCP_PACKET[] packets = new TCP_PACKET[size];  // 存储窗口内的包
+    public int base = 0;  // 窗口左指针
+    public int nextIndex = 0;  // 下一个包的指针
+    private UDT_Timer[] timers = new UDT_Timer[size];//窗口中每个包都需要一个计时器
     public SenderSlidingWindow(Client client) {
-        client = client;
+        this.client = client;
     }
 
     /*判断窗口是否已满*/
@@ -54,11 +58,4 @@ public class SenderSlidingWindow {
             }
         }
     }
-
-    public Client client;  //客户端
-    public int size = 16; //窗口大小
-    public TCP_PACKET[] packets = new TCP_PACKET[size];  // 存储窗口内的包
-    public int base = 0;  // 窗口左指针
-    public int nextIndex = 0;  // 下一个包的指针
-    private UDT_Timer[] timers = new UDT_Timer[size];//窗口中每个包都需要一个计时器
 }

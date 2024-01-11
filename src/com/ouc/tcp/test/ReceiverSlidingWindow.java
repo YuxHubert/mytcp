@@ -11,8 +11,14 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ReceiverSlidingWindow{
+    private Client client;
+    private int size = 16;
+    private int base = 0;
+    private TCP_PACKET[] packets = new TCP_PACKET[size];
+    Queue<int[]> dataQueue = new LinkedBlockingQueue();
+    private int counts = 0;
     public ReceiverSlidingWindow(Client client) {
-        client = client;
+        this.client = client;
     }
 
     public int receivePacket(TCP_PACKET packet) {
@@ -78,11 +84,4 @@ public class ReceiverSlidingWindow{
             e.printStackTrace();
         }
     }
-
-    private Client client;
-    private int size = 16;
-    private int base = 0;
-    private TCP_PACKET[] packets = new TCP_PACKET[size];
-    Queue<int[]> dataQueue = new LinkedBlockingQueue();
-    private int counts = 0;
 }

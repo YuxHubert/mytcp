@@ -1,6 +1,3 @@
-/***************************2.1: ACK/NACK
- **************************** Feng Hong; 2015-12-09*/
-
 package com.ouc.tcp.test;
 
 import com.ouc.tcp.client.TCP_Sender_ADT;

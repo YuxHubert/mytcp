@@ -1,13 +1,9 @@
-/***************************2.1: ACK/NACK
- **************************** Feng Hong; 2015-12-09*/
-
 package com.ouc.tcp.test;
 
 import com.ouc.tcp.client.TCP_Sender_ADT;
 import com.ouc.tcp.client.UDT_RetransTask;
 import com.ouc.tcp.client.UDT_Timer;
 import com.ouc.tcp.message.*;
-import com.ouc.tcp.tool.TCP_TOOL;
 
 public class TCP_Sender extends TCP_Sender_ADT {
     private UDT_Timer timer;
@@ -26,9 +22,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
     public void rdt_send(int dataIndex, int[] appData) {
 
         //生成TCP数据报（设置序号和数据字段/校验和),注意打包的顺序
-
-        tcpH.setTh_seq(dataIndex * appData.length + 1);//包序号设置为字节流号：
-
+        tcpH.setTh_seq(dataIndex * appData.length + 1);
         tcpS.setData(appData);
         tcpPack = new TCP_PACKET(tcpH, tcpS, destinAddr);
         //更新带有checksum的TCP 报文头
@@ -37,9 +31,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
         timer = new UDT_Timer(); // 实例化计时器
         retransTask = new UDT_RetransTask(client, tcpPack); //设置重传任务
-
-        //设置开始时间为2s后，之后每隔2s执行一次
-        timer.schedule(retransTask, 2000, 2000);
+        timer.schedule(retransTask, 2000, 2000);//设置开始时间为2s后，之后每隔2s执行一次
 
         //发送TCP数据报
         udt_send(tcpPack);
@@ -86,11 +78,6 @@ public class TCP_Sender extends TCP_Sender_ADT {
             }
             //RDT3.0:因为计时器会定时自动重传,即使收到错误的ack,什么也不用做
 
-            //else{ // RDT2.2之前：接收到错误序号的ack，需要重新发送
-            //	System.out.println("Retransmit: "+tcpPack.getTcpH().getTh_seq());
-            //	udt_send(tcpPack);
-            //	flag = 0;
-            //}
         }
     }
 

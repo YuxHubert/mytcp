@@ -4,16 +4,25 @@ import com.ouc.tcp.client.Client;
 import com.ouc.tcp.client.UDT_RetransTask;
 import com.ouc.tcp.client.UDT_Timer;
 import com.ouc.tcp.message.TCP_PACKET;
-
 import java.util.Hashtable;
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class SenderWindow {
 
+
+    public Client client;  //客户端
+    private volatile int ssthresh = 16; //门限
+
+
+    public int cwnd = 1; //拥塞窗口
+    private int lastAck = -1; //上一次收到的ACK的包的seq
+    // 使用哈希表，存储窗口内的包
+    private Hashtable<Integer, TCP_PACKET> packets = new Hashtable<>();
+    // 使用哈希表，储存每个包的计时器
+    private Hashtable<Integer, UDT_Timer> timer = new Hashtable<>();
+    private int ackCount = -1; //重复的Ack数
+    private int congestionCount = 0; // 进入拥塞避免状态时收到的ACK数W
     // 接收到ACK
     public void receiveACK(int number) {
-        if (number != lastAck) { //是新的序号
+        if (number != lastAck) { //是新的序号 意思是这个之前的包都可以删掉了
             for (int i = lastAck + 1; i <= number; i++) {
                 //累计确认，可以将之前的包移出窗口了
                 packets.remove(i);
@@ -75,18 +84,6 @@ public class SenderWindow {
         return cwnd <= packets.size();
     }
 
-    public Client client;  //客户端
-    private volatile int ssthresh = 16;
-    public int cwnd = 1;
-    private int lastAck = -1; //上一次收到的ACK的包的seq
-    // 使用哈希表，存储窗口内的包
-    private Hashtable<Integer, TCP_PACKET> packets = new Hashtable<>();
-    // 使用哈希表，储存每个包的计时器
-    private Hashtable<Integer, UDT_Timer> timer = new Hashtable<>();
-    private int ackCount = -1; //重复的Ack数
-    private int congestionCount = 0; // 进入拥塞避免状态时收到的ACK数W
-
-
     class Taho_Timer extends UDT_RetransTask {
         int number;
         private TCP_PACKET packet;
@@ -106,13 +103,6 @@ public class SenderWindow {
             ssthresh = Math.max(cwnd / 2, 2); // ssthresh 不得小于2
             cwnd = 1;
             super.run();
-//            if(timer.get(number) != null){
-//                timer.get(number).cancel();
-//                timer.remove(number);
-//            }
-//            timer.put(number, new UDT_Timer());
-//            timer.get(number).schedule(new Taho_Timer(client, packet), 1000, 1000);
-
         }
     }
 

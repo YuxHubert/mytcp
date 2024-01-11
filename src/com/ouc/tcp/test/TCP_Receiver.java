@@ -1,5 +1,3 @@
-/***************************2.1: ACK/NACK*****************/
-/***** Feng Hong; 2015-12-09******************************/
 package com.ouc.tcp.test;
 
 import com.ouc.tcp.client.TCP_Receiver_ADT;
@@ -10,10 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
+
 
 public class TCP_Receiver extends TCP_Receiver_ADT {
 
@@ -34,6 +29,7 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
         if(CheckSum.computeChkSum(recvPack) == recvPack.getTcpH().getTh_sum()) {
             int nowNumber = (recvPack.getTcpH().getTh_seq() - 1) / 100;
             if (nextNumber == nowNumber) {
+
                 // 将该包数据插入交付队列
                 dataQueue.add(recvPack.getTcpS().getData());
                 nextNumber ++;
